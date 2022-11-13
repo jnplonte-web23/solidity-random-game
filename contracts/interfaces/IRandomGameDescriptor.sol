@@ -2,7 +2,7 @@
 
 /// @title Interface for IRandomGameDescriptor
 
-pragma solidity ^0.8.11;
+pragma solidity ^0.8.16;
 
 interface IRandomGameDescriptor {
 	function getPlayerData(uint256 _tokenId) external view returns (address);
@@ -13,5 +13,5 @@ interface IRandomGameDescriptor {
 
 	function setTokenStart(uint256 _tokenId) external;
 
-	function setWinner(uint256 _lastTokenId) external view returns (address);
+	function setWinner(uint256 _lastTokenId) external view returns (address, address, address);
 }

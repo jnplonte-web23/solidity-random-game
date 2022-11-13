@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.11;
+pragma solidity ^0.8.16;
 
 import '@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol';
 import '@openzeppelin/contracts/access/Ownable.sol';
@@ -12,6 +12,8 @@ contract RandomGame is Ownable, ERC721Enumerable {
 	using Counters for Counters.Counter;
 
 	IRandomGameDescriptor public randomGameDescriptor;
+
+	bool public gameStart;
 
 	uint256 public playerLimit;
 	uint256 public playerCount;
@@ -79,7 +81,15 @@ contract RandomGame is Ownable, ERC721Enumerable {
 	 */
 	function startGame() public onlyOwner {
 		playerCount = 0;
+		gameStart = true;
 		randomGameDescriptor.setTokenStart(tokenCount.current());
+	}
+
+	/**
+	 * @notice stop game
+	 */
+	function stopGame() public onlyOwner {
+		gameStart = false;
 	}
 
 	/**
@@ -120,7 +130,9 @@ contract RandomGame is Ownable, ERC721Enumerable {
 	/**
 	 * @notice set winner
 	 */
-	function setWinner() public view onlyOwner returns (address) {
+	function setWinner() public onlyOwner returns (address, address, address) {
+		stopGame();
+
 		return randomGameDescriptor.setWinner(tokenCount.current());
 	}
 }

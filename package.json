@@ -9,8 +9,8 @@
 	"license": "MIT",
 	"scripts": {
 		"build": "npx hardhat compile",
-		"deploy": "npx hardhat run scripts/test.ts --network rinkeby",
-		"test": "npx hardhat test test/test*.spec.ts",
+		"deploy": "npx hardhat run scripts/randomGame.ts --network rinkeby",
+		"test": "npx hardhat test test/randomGame*.spec.ts",
 		"lint": "tslint -c ./tslint.json './scripts/**/*.ts'",
 		"sollint": "solhint './contracts/**/*.sol'",
 		"clean:cache": "npx hardhat clean"

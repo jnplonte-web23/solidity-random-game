@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.11;
+pragma solidity ^0.8.16;
+
+import 'hardhat/console.sol';
 
 contract RandomGameDescriptor {
 	struct PlayerStruct {
@@ -10,6 +12,11 @@ contract RandomGameDescriptor {
 
 	uint256 public tokenStart = 0;
 	mapping(uint256 => PlayerStruct) public playerList;
+
+	function getRandomNumber(uint8 _count, uint256 _start, uint256 _end) public view returns (uint256) {
+		uint256 random = uint256(keccak256(abi.encodePacked(block.timestamp, _count)));
+		return (random % _end) + _start;
+	}
 
 	/**
 	 * @notice get player data
@@ -48,8 +55,23 @@ contract RandomGameDescriptor {
 	/**
 	 * @notice set winner
 	 */
-	function setWinner(uint256 _lastTokenId) external view returns (address) {
-		// TODO: winner logic
-		return playerList[_lastTokenId].playerAddress;
+	function setWinner(uint256 _lastTokenId) external view returns (address, address, address) {
+		uint256 winner1 = getRandomNumber(1, tokenStart, _lastTokenId);
+
+		uint256 winner2 = getRandomNumber(2, tokenStart, _lastTokenId);
+		uint8 w2 = 1;
+		while (winner2 == winner1) {
+			winner2 = getRandomNumber(2 + w2, tokenStart, _lastTokenId);
+			w2++;
+		}
+
+		uint256 winner3 = getRandomNumber(3, tokenStart, _lastTokenId);
+		uint8 w3 = 1;
+		while (winner3 == winner1 || winner3 == winner2) {
+			winner3 = getRandomNumber(3 + w3, tokenStart, _lastTokenId);
+			w3++;
+		}
+
+		return (playerList[winner1].playerAddress, playerList[winner2].playerAddress, playerList[winner3].playerAddress);
 	}
 }

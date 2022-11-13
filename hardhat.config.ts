@@ -27,7 +27,7 @@ const config: HardhatUserConfig = {
 	solidity: {
 		compilers: [
 			{
-				version: '0.8.11',
+				version: '0.8.16',
 				settings: {
 					optimizer: {
 						enabled: true,
@@ -55,11 +55,11 @@ const config: HardhatUserConfig = {
 		apiKey: process.env.ETHERSCAN_API_KEY,
 	},
 	typechain: {
-		outDir: "build/typechain",
-		target: "ethers-v5",
+		outDir: 'build/typechain',
+		target: 'ethers-v5',
 		alwaysGenerateOverloads: false,
-		externalArtifacts: ["externalArtifacts/*.json"]
-	}
+		externalArtifacts: ['externalArtifacts/*.json'],
+	},
 };
 
 export default config;
