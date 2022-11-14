@@ -2,24 +2,32 @@
 
 pragma solidity ^0.8.16;
 
-import '@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol';
 import '@openzeppelin/contracts/access/Ownable.sol';
 import '@openzeppelin/contracts/utils/Counters.sol';
 
 import { IRandomGameDescriptor } from './interfaces/IRandomGameDescriptor.sol';
 
-contract RandomGame is Ownable, ERC721Enumerable {
+contract RandomGame is Ownable {
+	event SetWinner(address indexed finalWinner1, address indexed finalWinner2, address indexed finalWinner3);
+
 	using Counters for Counters.Counter;
 
 	IRandomGameDescriptor public randomGameDescriptor;
 
-	bool public gameStart;
+	uint256 private constant GAMEENDTIME = 864000; // 10 days
 
-	uint256 public playerLimit;
-	uint256 public playerCount;
-	uint256 public price;
+	bool private gameStart; // game start true or false
+	uint256 private gameStartTime = 0; // game start time based on block.timestamp
+
+	uint256 private playerLimit;
+	uint256 private playerCount;
+	uint256 private price;
 
 	Counters.Counter private tokenCount;
+
+	address[] public winner1List;
+	address[] public winner2List;
+	address[] public winner3List;
 
 	/***
 	 * @notice constructor
@@ -27,11 +35,7 @@ contract RandomGame is Ownable, ERC721Enumerable {
 	 * @param _playerLimit limit of the player that allowed to join
 	 * @param _price entry price
 	 */
-	constructor(
-		address _randomGameDescriptor,
-		uint256 _playerLimit,
-		uint256 _price
-	) ERC721('RandomGame for Web23', 'RANDOMGAME') {
+	constructor(address _randomGameDescriptor, uint256 _playerLimit, uint256 _price) {
 		randomGameDescriptor = IRandomGameDescriptor(_randomGameDescriptor);
 
 		playerLimit = _playerLimit;
@@ -80,8 +84,10 @@ contract RandomGame is Ownable, ERC721Enumerable {
 	 * @notice start new game
 	 */
 	function startGame() public onlyOwner {
-		playerCount = 0;
 		gameStart = true;
+		gameStartTime = block.timestamp + GAMEENDTIME;
+
+		playerCount = 0;
 		randomGameDescriptor.setTokenStart(tokenCount.current());
 	}
 
@@ -97,8 +103,6 @@ contract RandomGame is Ownable, ERC721Enumerable {
 	 * @param _tokenId token id
 	 */
 	function getPlayerData(uint256 _tokenId) public view returns (address) {
-		require(_exists(_tokenId), 'token dosent exists');
-
 		return randomGameDescriptor.getPlayerData(_tokenId);
 	}
 
@@ -113,15 +117,17 @@ contract RandomGame is Ownable, ERC721Enumerable {
 
 	/**
 	 * @notice set the player data
+	 * @param _referalAddress referal address
 	 */
-	function setPlayerData() public payable {
+	function setPlayerData(address _referalAddress) public payable {
+		require(gameStart == true, 'game is not started');
+		require(gameStartTime >= block.timestamp, 'game expired');
 		require(msg.value >= price, 'not enough coin');
 		require(playerLimit >= playerCount, 'limit reach');
 
 		address playerAddress = msg.sender;
 
-		_safeMint(playerAddress, tokenCount.current());
-		randomGameDescriptor.setPlayerData(tokenCount.current(), playerAddress);
+		randomGameDescriptor.setPlayerData(tokenCount.current(), playerAddress, _referalAddress);
 
 		playerCount = playerCount + 1;
 		tokenCount.increment();
@@ -133,6 +139,15 @@ contract RandomGame is Ownable, ERC721Enumerable {
 	function setWinner() public onlyOwner returns (address, address, address) {
 		stopGame();
 
-		return randomGameDescriptor.setWinner(tokenCount.current());
+		address finalWinner1;
+		address finalWinner2;
+		address finalWinner3;
+		(finalWinner1, finalWinner2, finalWinner3) = randomGameDescriptor.setWinner(tokenCount.current());
+
+		winner1List.push(finalWinner1);
+		winner2List.push(finalWinner2);
+		winner3List.push(finalWinner3);
+		emit SetWinner(finalWinner1, finalWinner2, finalWinner3);
+		return (finalWinner1, finalWinner2, finalWinner3);
 	}
 }

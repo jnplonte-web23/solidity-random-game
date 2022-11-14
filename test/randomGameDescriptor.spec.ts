@@ -5,6 +5,9 @@ describe.only('RandomGameDescriptor TEST', async () => {
 	let RandomGameDescriptor: any;
 	let descriptor: any;
 
+	const referalAddress1: string = '0x58933D8678b574349bE3CdDd3de115468e8cb3f0';
+	const referalAddress2: string = '0x0000000000000000000000000000000000000000';
+
 	const address1: string = '0x58933D8678b574349bE3CdDd3de115468e8cb3f0';
 	const address2: string = '0x30eDEc1C25218F5a748cccc54C562d7879e47CaA';
 	const address3: string = '0xB07243398f1d0094b64f4C0a61B8C03233914036';
@@ -22,9 +25,9 @@ describe.only('RandomGameDescriptor TEST', async () => {
 	});
 
 	it('should set test player', async () => {
-		await descriptor.setPlayerData(1, address1);
-		await descriptor.setPlayerData(2, address2);
-		await descriptor.setPlayerData(3, address3);
+		await descriptor.setPlayerData(1, address1, referalAddress1);
+		await descriptor.setPlayerData(2, address2, referalAddress2);
+		await descriptor.setPlayerData(3, address3, referalAddress2);
 
 		const testData1 = await descriptor.getPlayerData(1);
 		expect(testData1).to.equal(address1);
