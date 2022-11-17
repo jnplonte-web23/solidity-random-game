@@ -10,6 +10,7 @@
 	"scripts": {
 		"build": "npx hardhat compile",
 		"deploy": "npx hardhat run scripts/randomGame.ts --network rinkeby",
+		"deploy:hedera": "node scripts/randomGameHedera.ts",
 		"test": "npx hardhat test test/randomGame*.spec.ts",
 		"lint": "tslint -c ./tslint.json './scripts/**/*.ts'",
 		"sollint": "solhint './contracts/**/*.sol'",

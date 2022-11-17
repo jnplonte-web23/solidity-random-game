@@ -1,10 +1,8 @@
-//let helloHedera = require("./domainToken.json");
-//let helloHedera = require("./DomainWeb23.json");
-let helloHedera = require('./Game.json');
-// let helloHedera = require('./GameDescriptor.json');
-//let helloHedera = require("./RegistryByteCode.json");
+// const helloHedera = require('./../bytecodes/GameDescriptor.json');
+const helloHedera = require('./../bytecodes/Game.json');
 const bytecode = helloHedera.object;
-// const { constants } = require('./constants');
+
+require('dotenv').config();
 const {
 	Client,
 	PrivateKey,
@@ -15,17 +13,11 @@ const {
 	ContractFunctionParameters,
 	FileAppendTransaction,
 } = require('@hashgraph/sdk');
-/*
-File ID: 0.0.29572802
-Contract ID  0.0.29572803
 
-*/
-initHedera = async () => {
-	const ADMIN_ACCOUNT = AccountId.fromString('0.0.48899206');
+async function main() {
+	const ADMIN_ACCOUNT = AccountId.fromString(process.env.HEDERA_ID);
+	const ADMIN_PK = PrivateKey.fromString(process.env.HEDERA_KEY);
 
-	const ADMIN_PK = PrivateKey.fromString(
-		'302e020100300506032b657004220420b711288157cea3ec5cd131ee663442386ebef6c8d6bb6c425a994fdbbb556114'
-	);
 	//const client = Client.forMainnet();
 	const client = Client.forTestnet();
 	client.setOperator(ADMIN_ACCOUNT, ADMIN_PK);
@@ -88,7 +80,7 @@ initHedera = async () => {
 		// updated in the future
 		.setConstructorParameters(
 			new ContractFunctionParameters()
-				.addAddress('0000000000000000000000000000000002EA24FC')
+				.addAddress('0000000000000000000000000000000002EA4882')
 				.addUint256(100)
 				.addUint256(100)
 		)
@@ -101,6 +93,11 @@ initHedera = async () => {
 	const newContractId = contractReceipt.contractId;
 	console.log('The smart contract ID is ' + newContractId);
 	//End Deployement Code
-};
+}
 
-initHedera().then(null);
+main()
+	.then(() => process.exit(0))
+	.catch((error) => {
+		console.error(`hedera contract error: ${JSON.stringify(error)}`);
+		process.exit(1);
+	});
