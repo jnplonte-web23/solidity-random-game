@@ -4,11 +4,12 @@ pragma solidity ^0.8.16;
 
 import '@openzeppelin/contracts/access/Ownable.sol';
 import '@openzeppelin/contracts/utils/Counters.sol';
+import 'hardhat/console.sol';
 
 import { IRandomGameDescriptor } from './interfaces/IRandomGameDescriptor.sol';
 
 contract RandomGame is Ownable {
-	event SetWinner(address indexed finalWinner1, address indexed finalWinner2, address indexed finalWinner3);
+	event SetPlayer(uint256 playerToken, address indexed playerAddress, uint256 playerCount);
 
 	using Counters for Counters.Counter;
 
@@ -24,10 +25,6 @@ contract RandomGame is Ownable {
 	uint256 private price;
 
 	Counters.Counter private tokenCount;
-
-	address[] public winner1List;
-	address[] public winner2List;
-	address[] public winner3List;
 
 	/***
 	 * @notice constructor
@@ -71,6 +68,13 @@ contract RandomGame is Ownable {
 	 */
 	function setPlayerLimit(uint256 _playerLimit) public onlyOwner {
 		playerLimit = _playerLimit;
+	}
+
+	/**
+	 * @notice get current player count
+	 */
+	function getPlayerCount() public view returns (uint256) {
+		return playerCount;
 	}
 
 	/**
@@ -125,29 +129,30 @@ contract RandomGame is Ownable {
 		require(msg.value >= price, 'not enough coin');
 		require(playerLimit >= playerCount, 'limit reach');
 
+		uint256 playerToken = tokenCount.current();
 		address playerAddress = msg.sender;
 
-		randomGameDescriptor.setPlayerData(tokenCount.current(), playerAddress, _referalAddress);
+		randomGameDescriptor.setPlayerData(playerToken, playerAddress, _referalAddress);
 
 		playerCount = playerCount + 1;
 		tokenCount.increment();
+
+		emit SetPlayer(playerToken, playerAddress, playerCount);
 	}
 
 	/**
 	 * @notice set winner
 	 */
-	function setWinner() public onlyOwner returns (address, address, address) {
+	function setWinner() public onlyOwner {
 		stopGame();
+		randomGameDescriptor.setWinner(tokenCount.current());
+	}
 
-		address finalWinner1;
-		address finalWinner2;
-		address finalWinner3;
-		(finalWinner1, finalWinner2, finalWinner3) = randomGameDescriptor.setWinner(tokenCount.current());
-
-		winner1List.push(finalWinner1);
-		winner2List.push(finalWinner2);
-		winner3List.push(finalWinner3);
-		emit SetWinner(finalWinner1, finalWinner2, finalWinner3);
-		return (finalWinner1, finalWinner2, finalWinner3);
+	/**
+	 * @notice get winner list
+	 * @param _count winner count list
+	 */
+	function getWinnerList(uint8 _count) public view returns (address[] memory) {
+		return getWinnerList(_count);
 	}
 }
