@@ -1,53 +1,60 @@
-// import { expect } from 'chai';
-// import { ethers } from 'hardhat';
+import { expect } from 'chai';
+import { ethers } from 'hardhat';
 
-// describe.only('Test TEST', async () => {
-// 	let TestDescriptor: any;
-// 	let testdescriptor: any;
+describe.only('RandomGame TEST', async () => {
+	let Descriptor: any;
+	let descriptor: any;
 
-// 	let Web23Descriptor: any;
-// 	let web23descriptor: any;
+	let RandomGame: any;
+	let randomGame: any;
 
-// 	let Test: any;
-// 	let test: any;
+	const playerLimit = 100;
+	const price = ethers.utils.parseEther('0.1');
 
-// 	before(async () => {
-// 		TestDescriptor = await ethers.getContractFactory('TestDescriptor');
-// 		testdescriptor = await TestDescriptor.deploy();
-// 		testdescriptor.deployed();
+	const referalAddress1: string = '0x58933D8678b574349bE3CdDd3de115468e8cb3f0';
+	const referalAddress2: string = '0x0000000000000000000000000000000000000000';
 
-// 		Web23Descriptor = await ethers.getContractFactory('Web23Descriptor');
-// 		web23descriptor = await Web23Descriptor.deploy();
-// 		web23descriptor.deployed();
+	const address1: string = '0x58933D8678b574349bE3CdDd3de115468e8cb3f0';
+	const address2: string = '0x30eDEc1C25218F5a748cccc54C562d7879e47CaA';
+	const address3: string = '0xB07243398f1d0094b64f4C0a61B8C03233914036';
 
-// 		Test = await ethers.getContractFactory('Test');
-// 		test = await Test.deploy(testdescriptor.address);
-// 		test.deployed();
-// 	});
+	before(async () => {
+		Descriptor = await ethers.getContractFactory('RandomGameDescriptor');
+		descriptor = await Descriptor.deploy();
+		descriptor.deployed();
 
-// 	it('should return testData default value', async () => {
-// 		const testData = await test.getTestData();
-// 		expect(testData).to.equal('TEST');
-// 	});
+		RandomGame = await ethers.getContractFactory('RandomGame');
+		randomGame = await RandomGame.deploy(descriptor.address, playerLimit, price);
+		randomGame.deployed();
+	});
 
-// 	it('should change testData value', async () => {
-// 		await test.setTestData('SUPER ABC');
+	it('should get price', async () => {
+		const testData = await randomGame.getPrice();
+		expect(testData).to.equal(price);
+	});
 
-// 		const testData = await test.getTestData();
-// 		expect(testData).to.equal('SUPER ABC');
-// 	});
+	it('should get player limit', async () => {
+		const testData = await randomGame.getPlayerLimit();
+		expect(testData).to.equal(playerLimit);
+	});
 
-// 	it('should change descriptor address', async () => {
-// 		await test.setDescriptor(web23descriptor.address);
+	it('should get player count', async () => {
+		const testData = await randomGame.getPlayerCount();
+		expect(testData).to.equal(0);
+	});
 
-// 		const testData = await test.getTestData();
-// 		expect(testData).to.equal('WEB23');
-// 	});
+	it('should get game start', async () => {
+		const testData = await randomGame.getGameStart();
+		expect(testData).to.equal(false);
+	});
 
-// 	it('should change testData value', async () => {
-// 		await test.setTestData('SUPER DEF');
+	it('should get winner list', async () => {
+		const testData = await randomGame.getWinnerList(1);
+		expect(testData.length).to.equal(0);
+	});
 
-// 		const testData = await test.getTestData();
-// 		expect(testData).to.equal('SUPER DEF - FROM WEB23');
-// 	});
-// });
+	it('should get player data', async () => {
+		const testData = await randomGame.getPlayerData(1);
+		expect(testData).to.equal('0x0000000000000000000000000000000000000000');
+	});
+});

@@ -85,6 +85,13 @@ contract RandomGame is Ownable {
 	}
 
 	/**
+	 * @notice get game start
+	 */
+	function getGameStart() public view returns (bool) {
+		return gameStart;
+	}
+
+	/**
 	 * @notice start new game
 	 */
 	function startGame() public onlyOwner {
@@ -153,6 +160,6 @@ contract RandomGame is Ownable {
 	 * @param _count winner count list
 	 */
 	function getWinnerList(uint8 _count) public view returns (address[] memory) {
-		return getWinnerList(_count);
+		return randomGameDescriptor.getWinnerList(_count);
 	}
 }

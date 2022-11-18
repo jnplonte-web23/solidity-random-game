@@ -1,5 +1,6 @@
 // const helloHedera = require('./../bytecodes/GameDescriptor.json');
 const helloHedera = require('./../bytecodes/Game.json');
+
 const bytecode = helloHedera.object;
 
 require('dotenv').config();
@@ -80,7 +81,7 @@ async function main() {
 		// updated in the future
 		.setConstructorParameters(
 			new ContractFunctionParameters()
-				.addAddress('0000000000000000000000000000000002EA4882')
+				.addAddress('0000000000000000000000000000000002EA6E82')
 				.addUint256(100)
 				.addUint256(100)
 		)
