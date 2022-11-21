@@ -19,38 +19,38 @@ describe.only('RandomGameDescriptor TEST', async () => {
 	});
 
 	it('should get random number', async () => {
-		const testData = await descriptor.getRandomNumber(1, 1, 3);
+		const testData = await descriptor.getRandomNumber(1, 0, 3);
 
 		expect(Number(testData.toString())).to.be.a('number');
 	});
 
-	it('should set test player', async () => {
-		await descriptor.setPlayerData(1, address1, referalAddress1);
-		await descriptor.setPlayerData(2, address2, referalAddress2);
-		await descriptor.setPlayerData(3, address3, referalAddress2);
+	it('should set test player 1', async () => {
+		const testDataEvent = await descriptor.setPlayerData(0, address1, referalAddress1);
+		await testDataEvent.wait();
 
-		const testData1 = await descriptor.getPlayerData(1);
-		expect(testData1).to.equal(address1);
+		const testData = await descriptor.getPlayerData(0);
+		expect(testData).to.equal(address1);
 	});
 
-	it('should get test player', async () => {
-		const testData2 = await descriptor.getPlayerData(2);
-		expect(testData2).to.equal(address2);
+	it('should set test player 2', async () => {
+		const testDataEvent = await descriptor.setPlayerData(1, address2, referalAddress1);
+		await testDataEvent.wait();
 
-		const testData3 = await descriptor.getPlayerData(3);
-		expect(testData3).to.equal(testData3);
+		const testData = await descriptor.getPlayerData(1);
+		expect(testData).to.equal(address2);
 	});
 
-	it('should set and get token start', async () => {
-		await descriptor.setTokenStart(1);
+	it('should set test player 3', async () => {
+		const testDataEvent = await descriptor.setPlayerData(2, address3, referalAddress1);
+		await testDataEvent.wait();
 
-		const testData = await descriptor.getTokenStart();
-		expect(testData).to.equal(1);
+		const testData = await descriptor.getPlayerData(2);
+		expect(testData).to.equal(address3);
 	});
 
 	it('should set the winner', async () => {
-		const testData1 = await descriptor.setWinner(3);
-		await testData1.wait();
+		const testDataEvent = await descriptor.setWinner(2);
+		await testDataEvent.wait();
 
 		const testData2 = await descriptor.getWinnerList(1);
 		expect(testData2.length).to.equal(1);
@@ -65,5 +65,19 @@ describe.only('RandomGameDescriptor TEST', async () => {
 
 		const testData3 = await descriptor.getWinnerList(3);
 		expect(testData3.length).to.equal(1);
+	});
+
+	it('should clear player data', async () => {
+		const testDataEvent = await descriptor.clearPlayerData(100);
+		await testDataEvent.wait();
+
+		const testData1 = await descriptor.getPlayerData(0);
+		expect(testData1).to.equal(referalAddress2);
+
+		const testData2 = await descriptor.getPlayerData(1);
+		expect(testData2).to.equal(referalAddress2);
+
+		const testData3 = await descriptor.getPlayerData(2);
+		expect(testData3).to.equal(referalAddress2);
 	});
 });

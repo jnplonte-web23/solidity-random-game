@@ -14,6 +14,7 @@ contract RandomGameDescriptor is HederaTokenService {
 	struct PlayerStruct {
 		address playerAddress;
 		address referalAddress;
+		bool active;
 	}
 
 	uint8 private referalFee = 10;
@@ -25,12 +26,24 @@ contract RandomGameDescriptor is HederaTokenService {
 	address[] public winner2List;
 	address[] public winner3List;
 
-	uint256 private startOnTokenId = 0;
 	mapping(uint256 => PlayerStruct) public playerList;
 
 	function getRandomNumber(uint8 _count, uint256 _start, uint256 _end) public view returns (uint256) {
 		uint256 random = uint256(keccak256(abi.encodePacked(block.timestamp, _count)));
-		return (random % _end) + _start;
+		return (random % (_end + 1)) + _start;
+	}
+
+	/**
+	 * @notice clear player list
+	 * @param _lastTokenId last token id
+	 */
+	function clearPlayerData(uint256 _lastTokenId) external {
+		uint256 i = 0;
+		for (i; i < _lastTokenId; i++) {
+			if (playerList[i].active) {
+				delete playerList[i];
+			}
+		}
 	}
 
 	/**
@@ -51,21 +64,7 @@ contract RandomGameDescriptor is HederaTokenService {
 		PlayerStruct storage playerStorage = playerList[_tokenId];
 		playerStorage.playerAddress = _playerAddress;
 		playerStorage.referalAddress = _referalAddress;
-	}
-
-	/**
-	 * @notice get token start
-	 */
-	function getTokenStart() external view returns (uint256) {
-		return startOnTokenId;
-	}
-
-	/**
-	 * @notice get player data
-	 * @param _tokenId token id
-	 */
-	function setTokenStart(uint256 _tokenId) external {
-		startOnTokenId = _tokenId;
+		playerStorage.active = true;
 	}
 
 	/**
@@ -87,19 +86,21 @@ contract RandomGameDescriptor is HederaTokenService {
 	 * @param _lastTokenId last token id
 	 */
 	function setWinner(uint256 _lastTokenId) external {
-		uint256 winner1 = getRandomNumber(1, startOnTokenId, _lastTokenId);
+		uint256 winner1 = getRandomNumber(11, 0, _lastTokenId);
 
-		uint256 winner2 = getRandomNumber(2, startOnTokenId, _lastTokenId);
+		// NOTE: make sure winner 2 is not winner1
+		uint256 winner2 = getRandomNumber(22, 0, _lastTokenId);
 		uint8 w2 = 1;
 		while (winner2 == winner1) {
-			winner2 = getRandomNumber(2 + w2, startOnTokenId, _lastTokenId);
+			winner2 = getRandomNumber(22 + w2, 0, _lastTokenId);
 			w2++;
 		}
 
-		uint256 winner3 = getRandomNumber(3, startOnTokenId, _lastTokenId);
+		// NOTE: make sure winner 3 is not winner1 and winner2
+		uint256 winner3 = getRandomNumber(33, 0, _lastTokenId);
 		uint8 w3 = 1;
 		while (winner3 == winner1 || winner3 == winner2) {
-			winner3 = getRandomNumber(3 + w3, startOnTokenId, _lastTokenId);
+			winner3 = getRandomNumber(33 + w3, 0, _lastTokenId);
 			w3++;
 		}
 
@@ -107,18 +108,23 @@ contract RandomGameDescriptor is HederaTokenService {
 		PlayerStruct memory finalWinner2 = playerList[winner2];
 		PlayerStruct memory finalWinner3 = playerList[winner3];
 
-		IHederaTokenService.AccountAmount[] memory winners = new IHederaTokenService.AccountAmount[](3);
-		winners[1] = IHederaTokenService.AccountAmount(address(finalWinner1.playerAddress), 10, true);
-		winners[2] = IHederaTokenService.AccountAmount(address(finalWinner2.playerAddress), 10, true);
-		winners[3] = IHederaTokenService.AccountAmount(address(finalWinner3.playerAddress), 10, true);
+		// TODO: send money to winner
+		// IHederaTokenService.AccountAmount[] memory winners = new IHederaTokenService.AccountAmount[](3);
+		// winners[1] = IHederaTokenService.AccountAmount(address(finalWinner1.playerAddress), 10, true);
+		// winners[2] = IHederaTokenService.AccountAmount(address(finalWinner2.playerAddress), 10, true);
+		// winners[3] = IHederaTokenService.AccountAmount(address(finalWinner3.playerAddress), 10, true);
 
-		IHederaTokenService.TransferList memory finalWinner = IHederaTokenService.TransferList(winners);
-		IHederaTokenService.TokenTransferList[] memory finalWinnerList;
+		// IHederaTokenService.AccountAmount[] memory winners = new IHederaTokenService.AccountAmount[](2);
+		// winners[0] = IHederaTokenService.AccountAmount(address(finalWinner1.playerAddress), 10, true);
+		// winners[1] = IHederaTokenService.AccountAmount(address(_playerAddress), -10, true);
 
-		int responseCode = HederaTokenService.cryptoTransfer(finalWinner, finalWinnerList);
-		if (responseCode != HederaResponseCodes.SUCCESS) {
-			revert('error');
-		}
+		// IHederaTokenService.TransferList memory finalWinner = IHederaTokenService.TransferList(winners);
+		// IHederaTokenService.TokenTransferList[] memory finalWinnerList;
+
+		// int responseCode = HederaTokenService.cryptoTransfer(finalWinner, finalWinnerList);
+		// if (responseCode != HederaResponseCodes.SUCCESS) {
+		// 	revert('error');
+		// }
 
 		winner1List.push(finalWinner1.playerAddress);
 		winner2List.push(finalWinner2.playerAddress);

@@ -81,7 +81,7 @@ async function main() {
 		// updated in the future
 		.setConstructorParameters(
 			new ContractFunctionParameters()
-				.addAddress('0000000000000000000000000000000002EA6E82')
+				.addAddress('0000000000000000000000000000000002EA7EFD')
 				.addUint256(100)
 				.addUint256(100)
 		)

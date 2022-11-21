@@ -3,15 +3,12 @@
 pragma solidity ^0.8.16;
 
 import '@openzeppelin/contracts/access/Ownable.sol';
-import '@openzeppelin/contracts/utils/Counters.sol';
 import 'hardhat/console.sol';
 
 import { IRandomGameDescriptor } from './interfaces/IRandomGameDescriptor.sol';
 
 contract RandomGame is Ownable {
-	event SetPlayer(uint256 playerToken, address indexed playerAddress, uint256 playerCount);
-
-	using Counters for Counters.Counter;
+	event SetPlayer(address indexed playerAddress, uint256 playerCount);
 
 	IRandomGameDescriptor public randomGameDescriptor;
 
@@ -23,8 +20,6 @@ contract RandomGame is Ownable {
 	uint256 private playerLimit;
 	uint256 private playerCount;
 	uint256 private price;
-
-	Counters.Counter private tokenCount;
 
 	/***
 	 * @notice constructor
@@ -38,6 +33,22 @@ contract RandomGame is Ownable {
 		playerLimit = _playerLimit;
 		playerCount = 0;
 		price = _price;
+	}
+
+	/**
+	 * @notice set the new descriptor
+	 * @param _randomGameDescriptor address for test descriptor
+	 */
+	function setDescriptor(address _randomGameDescriptor) public onlyOwner {
+		require(_randomGameDescriptor != address(0), 'INVALID_ADDRESS');
+		randomGameDescriptor = IRandomGameDescriptor(_randomGameDescriptor);
+	}
+
+	/**
+	 * @notice get contract balance
+	 */
+	function getBalance() public view onlyOwner returns (uint256) {
+		return address(this).balance;
 	}
 
 	/**
@@ -78,28 +89,23 @@ contract RandomGame is Ownable {
 	}
 
 	/**
-	 * @notice get token start
+	 * @notice is game started
 	 */
-	function getTokenStart() public view returns (uint256) {
-		return randomGameDescriptor.getTokenStart();
-	}
-
-	/**
-	 * @notice get game start
-	 */
-	function getGameStart() public view returns (bool) {
+	function isGameStart() public view returns (bool) {
 		return gameStart;
 	}
 
 	/**
 	 * @notice start new game
+	 * @param _playerLimit limit of the player that allowed to join
 	 */
-	function startGame() public onlyOwner {
+	function startGame(uint256 _playerLimit) public onlyOwner {
 		gameStart = true;
 		gameStartTime = block.timestamp + GAMEENDTIME;
 
 		playerCount = 0;
-		randomGameDescriptor.setTokenStart(tokenCount.current());
+		playerLimit = _playerLimit;
+		randomGameDescriptor.clearPlayerData(_playerLimit);
 	}
 
 	/**
@@ -118,15 +124,6 @@ contract RandomGame is Ownable {
 	}
 
 	/**
-	 * @notice set the new descriptor
-	 * @param _randomGameDescriptor address for test descriptor
-	 */
-	function setDescriptor(address _randomGameDescriptor) public onlyOwner {
-		require(_randomGameDescriptor != address(0), 'INVALID_ADDRESS');
-		randomGameDescriptor = IRandomGameDescriptor(_randomGameDescriptor);
-	}
-
-	/**
 	 * @notice set the player data
 	 * @param _referalAddress referal address
 	 */
@@ -136,15 +133,12 @@ contract RandomGame is Ownable {
 		require(msg.value >= price, 'not enough coin');
 		require(playerLimit >= playerCount, 'limit reach');
 
-		uint256 playerToken = tokenCount.current();
 		address playerAddress = msg.sender;
 
-		randomGameDescriptor.setPlayerData(playerToken, playerAddress, _referalAddress);
+		randomGameDescriptor.setPlayerData(playerCount, playerAddress, _referalAddress);
 
 		playerCount = playerCount + 1;
-		tokenCount.increment();
-
-		emit SetPlayer(playerToken, playerAddress, playerCount);
+		emit SetPlayer(playerAddress, playerCount);
 	}
 
 	/**
@@ -152,7 +146,8 @@ contract RandomGame is Ownable {
 	 */
 	function setWinner() public onlyOwner {
 		stopGame();
-		randomGameDescriptor.setWinner(tokenCount.current());
+
+		randomGameDescriptor.setWinner(playerCount);
 	}
 
 	/**
