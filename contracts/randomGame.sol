@@ -131,10 +131,9 @@ contract RandomGame is Ownable {
 		require(gameStart == true, 'game is not started');
 		require(gameStartTime >= block.timestamp, 'game expired');
 		require(msg.value >= price, 'not enough coin');
-		require(playerLimit >= playerCount, 'limit reach');
+		require(playerLimit > playerCount, 'player limit reach');
 
 		address playerAddress = msg.sender;
-
 		randomGameDescriptor.setPlayerData(playerCount, playerAddress, _referalAddress);
 
 		playerCount = playerCount + 1;
@@ -143,11 +142,12 @@ contract RandomGame is Ownable {
 
 	/**
 	 * @notice set winner
+	 * @param _winnerCount winner count (max 3)
 	 */
-	function setWinner() public onlyOwner {
+	function setWinner(uint8 _winnerCount) public onlyOwner {
 		stopGame();
 
-		randomGameDescriptor.setWinner(playerCount);
+		randomGameDescriptor.setWinner(playerCount, _winnerCount);
 	}
 
 	/**

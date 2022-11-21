@@ -49,7 +49,7 @@ describe.only('RandomGameDescriptor TEST', async () => {
 	});
 
 	it('should set the winner', async () => {
-		const testDataEvent = await descriptor.setWinner(2);
+		const testDataEvent = await descriptor.setWinner(2, 3);
 		await testDataEvent.wait();
 
 		const testData2 = await descriptor.getWinnerList(1);

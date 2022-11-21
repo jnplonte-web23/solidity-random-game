@@ -66,7 +66,7 @@ describe.only('RandomGame TEST', async () => {
 	});
 
 	it('should get player data', async () => {
-		const testData = await randomGame.getPlayerData(1);
+		const testData = await randomGame.getPlayerData(0);
 		expect(testData).to.equal('0x0000000000000000000000000000000000000000');
 	});
 
@@ -92,11 +92,104 @@ describe.only('RandomGame TEST', async () => {
 		expect(testData).to.equal(false);
 	});
 
+	it('should reject set player (game is not started)', async () => {
+		await expect(
+			randomGame.setPlayerData(referalAddress1, {
+				value: ethers.utils.parseEther('0.1'),
+			})
+		).to.be.revertedWith('game is not started');
+	});
+
 	it('should start the real game', async () => {
-		const testDataEvent = await randomGame.startGame(10);
+		const testDataEvent = await randomGame.startGame(3);
 		await testDataEvent.wait();
 
 		const testData = await randomGame.isGameStart();
 		expect(testData).to.equal(true);
+	});
+
+	it('should reject set player (not enough coin)', async () => {
+		await expect(
+			randomGame.setPlayerData(referalAddress1, {
+				value: ethers.utils.parseEther('0.001'),
+			})
+		).to.be.revertedWith('not enough coin');
+	});
+
+	it('should set test player 1', async () => {
+		const testDataEvent = await randomGame.setPlayerData(referalAddress1, {
+			value: ethers.utils.parseEther('0.1'),
+		});
+		await testDataEvent.wait();
+
+		const testData = await randomGame.getPlayerData(0);
+		expect(testData).to.not.equal('0x0000000000000000000000000000000000000000');
+	});
+
+	it('should set test player 2', async () => {
+		const testDataEvent = await randomGame.setPlayerData(referalAddress1, {
+			value: ethers.utils.parseEther('0.1'),
+		});
+		await testDataEvent.wait();
+
+		const testData = await randomGame.getPlayerData(1);
+		expect(testData).to.be.a('string');
+	});
+
+	it('should set test player 3', async () => {
+		const testDataEvent = await randomGame.setPlayerData(referalAddress1, {
+			value: ethers.utils.parseEther('0.1'),
+		});
+		await testDataEvent.wait();
+
+		const testData = await randomGame.getPlayerData(1);
+		expect(testData).to.be.a('string');
+	});
+
+	it('should reject set player (player limit reach)', async () => {
+		await expect(
+			randomGame.setPlayerData(referalAddress1, {
+				value: ethers.utils.parseEther('0.1'),
+			})
+		).to.be.revertedWith('player limit reach');
+	});
+
+	it('should set the winner', async () => {
+		const testDataEvent = await randomGame.setWinner(1);
+		await testDataEvent.wait();
+
+		const testData1 = await randomGame.isGameStart();
+		expect(testData1).to.equal(false);
+
+		const testData2 = await randomGame.getWinnerList(1);
+		expect(testData2.length).to.equal(1);
+	});
+
+	it('should get the winner list', async () => {
+		const testData1 = await randomGame.getWinnerList(1);
+		expect(testData1.length).to.equal(1);
+
+		const testData2 = await randomGame.getWinnerList(2);
+		expect(testData2[0]).to.equal(referalAddress2);
+
+		const testData3 = await randomGame.getWinnerList(3);
+		expect(testData3[0]).to.equal(referalAddress2);
+	});
+
+	it('should start another real game', async () => {
+		const testDataEvent = await randomGame.startGame(3);
+		await testDataEvent.wait();
+
+		const testData1 = await randomGame.getPlayerCount();
+		expect(testData1).to.equal(0);
+
+		const testData2 = await randomGame.getPlayerLimit();
+		expect(testData2).to.equal(3);
+
+		const testData3 = await randomGame.isGameStart();
+		expect(testData3).to.equal(true);
+
+		const testData = await randomGame.getPlayerData(0);
+		expect(testData).to.equal('0x0000000000000000000000000000000000000000');
 	});
 });
