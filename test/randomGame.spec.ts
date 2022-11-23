@@ -9,7 +9,7 @@ describe.only('RandomGame TEST', async () => {
 	let randomGame: any;
 
 	const playerLimit = 100;
-	const price = ethers.utils.parseEther('0.1');
+	const price = ethers.utils.parseEther('10');
 
 	const referalAddress1: string = '0x58933D8678b574349bE3CdDd3de115468e8cb3f0';
 	const referalAddress2: string = '0x0000000000000000000000000000000000000000';
@@ -94,14 +94,14 @@ describe.only('RandomGame TEST', async () => {
 
 	it('should reject set player (game is not started)', async () => {
 		await expect(
-			randomGame.setPlayerData(referalAddress1, {
-				value: ethers.utils.parseEther('0.1'),
+			randomGame.setPlayerData(2, referalAddress1, {
+				value: ethers.utils.parseEther('20'),
 			})
 		).to.be.revertedWith('game is not started');
 	});
 
 	it('should start the real game', async () => {
-		const testDataEvent = await randomGame.startGame(3);
+		const testDataEvent = await randomGame.startGame(5);
 		await testDataEvent.wait();
 
 		const testData = await randomGame.isGameStart();
@@ -110,15 +110,15 @@ describe.only('RandomGame TEST', async () => {
 
 	it('should reject set player (not enough coin)', async () => {
 		await expect(
-			randomGame.setPlayerData(referalAddress1, {
-				value: ethers.utils.parseEther('0.001'),
+			randomGame.setPlayerData(5, referalAddress1, {
+				value: ethers.utils.parseEther('10'),
 			})
 		).to.be.revertedWith('not enough coin');
 	});
 
 	it('should set test player 1', async () => {
-		const testDataEvent = await randomGame.setPlayerData(referalAddress1, {
-			value: ethers.utils.parseEther('0.1'),
+		const testDataEvent = await randomGame.setPlayerData(3, referalAddress1, {
+			value: ethers.utils.parseEther('30'),
 		});
 		await testDataEvent.wait();
 
@@ -127,29 +127,29 @@ describe.only('RandomGame TEST', async () => {
 	});
 
 	it('should set test player 2', async () => {
-		const testDataEvent = await randomGame.setPlayerData(referalAddress1, {
-			value: ethers.utils.parseEther('0.1'),
+		const testDataEvent = await randomGame.setPlayerData(1, referalAddress1, {
+			value: ethers.utils.parseEther('10'),
 		});
 		await testDataEvent.wait();
 
-		const testData = await randomGame.getPlayerData(1);
+		const testData = await randomGame.getPlayerData(3);
 		expect(testData).to.be.a('string');
 	});
 
 	it('should set test player 3', async () => {
-		const testDataEvent = await randomGame.setPlayerData(referalAddress1, {
-			value: ethers.utils.parseEther('0.1'),
+		const testDataEvent = await randomGame.setPlayerData(1, referalAddress1, {
+			value: ethers.utils.parseEther('10'),
 		});
 		await testDataEvent.wait();
 
-		const testData = await randomGame.getPlayerData(1);
+		const testData = await randomGame.getPlayerData(4);
 		expect(testData).to.be.a('string');
 	});
 
 	it('should reject set player (player limit reach)', async () => {
 		await expect(
-			randomGame.setPlayerData(referalAddress1, {
-				value: ethers.utils.parseEther('0.1'),
+			randomGame.setPlayerData(1, referalAddress1, {
+				value: ethers.utils.parseEther('10'),
 			})
 		).to.be.revertedWith('player limit reach');
 	});

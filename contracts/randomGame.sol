@@ -8,7 +8,7 @@ import 'hardhat/console.sol';
 import { IRandomGameDescriptor } from './interfaces/IRandomGameDescriptor.sol';
 
 contract RandomGame is Ownable {
-	event SetPlayer(address indexed playerAddress, uint256 playerCount);
+	event SetPlayer(address indexed playerAddress, uint256 playerCount, uint8 count);
 
 	IRandomGameDescriptor public randomGameDescriptor;
 
@@ -126,18 +126,23 @@ contract RandomGame is Ownable {
 	/**
 	 * @notice set the player data
 	 * @param _referalAddress referal address
+	 * @param _count number of entries
 	 */
-	function setPlayerData(address _referalAddress) public payable {
+	function setPlayerData(uint8 _count, address _referalAddress) public payable {
 		require(gameStart == true, 'game is not started');
 		require(gameStartTime >= block.timestamp, 'game expired');
-		require(msg.value >= price, 'not enough coin');
-		require(playerLimit > playerCount, 'player limit reach');
+		require(msg.value >= price * _count, 'not enough coin');
+		require(playerLimit >= playerCount + _count, 'player limit reach');
 
 		address playerAddress = msg.sender;
-		randomGameDescriptor.setPlayerData(playerCount, playerAddress, _referalAddress);
 
-		playerCount = playerCount + 1;
-		emit SetPlayer(playerAddress, playerCount);
+		uint8 j = 1;
+		for (j; j <= _count; j++) {
+			randomGameDescriptor.setPlayerData(playerCount, playerAddress, _referalAddress);
+			playerCount = playerCount + 1;
+		}
+
+		emit SetPlayer(playerAddress, playerCount, _count);
 	}
 
 	/**
