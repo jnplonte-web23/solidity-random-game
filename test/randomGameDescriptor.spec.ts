@@ -49,22 +49,10 @@ describe.only('RandomGameDescriptor TEST', async () => {
 	});
 
 	it('should set the winner', async () => {
-		const testDataEvent = await descriptor.setWinner(2, 3);
-		await testDataEvent.wait();
+		const testData1 = await descriptor.setWinner(2, 3);
 
-		const testData2 = await descriptor.getWinnerList(1);
-		expect(testData2.length).to.equal(1);
-	});
-
-	it('should get the winner list', async () => {
-		const testData1 = await descriptor.getWinnerList(1);
-		expect(testData1.length).to.equal(1);
-
-		const testData2 = await descriptor.getWinnerList(2);
-		expect(testData2.length).to.equal(1);
-
-		const testData3 = await descriptor.getWinnerList(3);
-		expect(testData3.length).to.equal(1);
+		expect(testData1[0].length).to.equal(3);
+		expect(testData1[1].length).to.equal(3);
 	});
 
 	it('should clear player data', async () => {

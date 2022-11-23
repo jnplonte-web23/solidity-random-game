@@ -11,7 +11,8 @@ interface IRandomGameDescriptor {
 
 	function setPlayerData(uint256 _tokenId, address _playerAddress, address _referalAddress) external;
 
-	function getWinnerList(uint8 _count) external view returns (address[] memory);
-
-	function setWinner(uint256 _lastTokenId, uint8 _winnerCount) external;
+	function setWinner(
+		uint256 _lastTokenId,
+		uint8 _winnerCount
+	) external view returns (address[3] memory, address[3] memory);
 }

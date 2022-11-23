@@ -5,14 +5,30 @@ pragma solidity ^0.8.16;
 import '@openzeppelin/contracts/access/Ownable.sol';
 import 'hardhat/console.sol';
 
+import './hedera/HederaTokenService.sol';
+import './hedera/HederaResponseCodes.sol';
+
 import { IRandomGameDescriptor } from './interfaces/IRandomGameDescriptor.sol';
 
-contract RandomGame is Ownable {
+contract RandomGame is HederaTokenService, Ownable {
 	event SetPlayer(address indexed playerAddress, uint256 playerCount, uint8 count);
+	event SetWinner(address indexed finalWinner1, address indexed finalWinner2, address indexed finalWinner3);
 
 	IRandomGameDescriptor public randomGameDescriptor;
 
+	struct PlayerStruct {
+		address playerAddress;
+		address referalAddress;
+		bool active;
+	}
+
 	uint256 private constant GAMEENDTIME = 864000; // 10 days
+
+	// NOTE: 10 percent goes to the contract
+	uint8 private constant REFERALFEE = 5;
+	uint8 private constant WINNER1FEE = 50;
+	uint8 private constant WINNER2FEE = 20;
+	uint8 private constant WINNER3FEE = 15;
 
 	bool private gameStart; // game start true or false
 	uint256 private gameStartTime = 0; // game start time based on block.timestamp
@@ -20,6 +36,10 @@ contract RandomGame is Ownable {
 	uint256 private playerLimit;
 	uint256 private playerCount;
 	uint256 private price;
+
+	address[] private winner1List;
+	address[] private winner2List;
+	address[] private winner3List;
 
 	/***
 	 * @notice constructor
@@ -42,6 +62,15 @@ contract RandomGame is Ownable {
 	function setDescriptor(address _randomGameDescriptor) public onlyOwner {
 		require(_randomGameDescriptor != address(0), 'INVALID_ADDRESS');
 		randomGameDescriptor = IRandomGameDescriptor(_randomGameDescriptor);
+	}
+
+	/**
+	 * @notice transfer hbar
+	 * @param _receiverAddress address of receiver
+	 * @param _amount amount of token
+	 */
+	function transferHbar(address payable _receiverAddress, uint _amount) public onlyOwner {
+		_receiverAddress.transfer(_amount);
 	}
 
 	/**
@@ -152,14 +181,37 @@ contract RandomGame is Ownable {
 	function setWinner(uint8 _winnerCount) public onlyOwner {
 		stopGame();
 
-		randomGameDescriptor.setWinner(playerCount, _winnerCount);
+		address[3] memory winners;
+		address[3] memory referals;
+		(winners, referals) = randomGameDescriptor.setWinner(playerCount, _winnerCount);
+
+		transferHbar(payable(address(winners[0])), 10);
+
+		if (_winnerCount >= 2) {
+			transferHbar(payable(address(winners[1])), 10);
+		}
+
+		if (_winnerCount >= 3) {
+			transferHbar(payable(address(winners[2])), 10);
+		}
+
+		winner1List.push(address(winners[0]));
+		winner2List.push(address(winners[1]));
+		winner3List.push(address(winners[2]));
+		emit SetWinner(address(winners[0]), address(winners[1]), address(winners[2]));
 	}
 
 	/**
 	 * @notice get winner list
 	 * @param _count winner count list
 	 */
-	function getWinnerList(uint8 _count) public view returns (address[] memory) {
-		return randomGameDescriptor.getWinnerList(_count);
+	function getWinnerList(uint8 _count) external view returns (address[] memory) {
+		if (_count == 1) {
+			return winner1List;
+		} else if (_count == 2) {
+			return winner2List;
+		} else {
+			return winner3List;
+		}
 	}
 }
