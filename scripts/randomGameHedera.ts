@@ -1,5 +1,5 @@
-// const helloHedera = require('./../bytecodes/GameDescriptor.json');
-const helloHedera = require('./../bytecodes/Game.json');
+// const helloHedera = require('./../bytecodes/randomGameDescriptor.json');
+const helloHedera = require('./../bytecodes/randomGame.json');
 
 const bytecode = helloHedera.object;
 
@@ -81,7 +81,7 @@ async function main() {
 		// updated in the future
 		.setConstructorParameters(
 			new ContractFunctionParameters()
-				.addAddress('0000000000000000000000000000000002EA7EFD')
+				.addAddress('0000000000000000000000000000000002EAEDD4')
 				.addUint256(100)
 				.addUint256(100)
 		)
