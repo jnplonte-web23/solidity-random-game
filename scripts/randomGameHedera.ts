@@ -79,12 +79,15 @@ async function main() {
 		.setBytecodeFileId(fileId)
 		// Set the admin key on the contract in case the contract should be deleted or
 		// updated in the future
+
+		// for main contract
 		.setConstructorParameters(
 			new ContractFunctionParameters()
-				.addAddress('0000000000000000000000000000000002EAEDD4')
+				.addAddress('0000000000000000000000000000000002EB0672')
 				.addUint256(100)
 				.addUint256(100)
 		)
+
 		//.setConstructorParameters(new ContractFunctionParameters().addAddress(0.0.48569745))
 		.setAdminKey(client.operatorPublicKey)
 		.execute(client);
@@ -92,7 +95,7 @@ async function main() {
 	// Fetch the receipt for the transaction that created the contract
 	const contractReceipt = await contractTransactionResponse.getReceipt(client);
 	const newContractId = contractReceipt.contractId;
-	console.log('The smart contract ID is ' + newContractId);
+	console.log('The smart contract id is ' + newContractId);
 	//End Deployement Code
 }
 
