@@ -81,11 +81,12 @@ async function main() {
 		// updated in the future
 
 		// for main contract
+		// price = 10 * 1e8
 		.setConstructorParameters(
 			new ContractFunctionParameters()
 				.addAddress('0000000000000000000000000000000002ECDE2A')
 				.addUint256(100)
-				.addUint256(10000000000000000000)
+				.addUint256(1000000000)
 		)
 
 		//.setConstructorParameters(new ContractFunctionParameters().addAddress(0.0.48569745))
