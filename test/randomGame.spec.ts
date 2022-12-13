@@ -11,6 +11,8 @@ describe.only('RandomGame TEST', async () => {
 	const playerLimit = 100;
 	const price = ethers.utils.parseEther('10');
 
+	console.log('PRICE:', price);
+
 	const referalAddress1: string = '0x58933D8678b574349bE3CdDd3de115468e8cb3f0';
 	const referalAddress2: string = '0x0000000000000000000000000000000000000000';
 
