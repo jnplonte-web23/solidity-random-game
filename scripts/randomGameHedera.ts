@@ -1,3 +1,5 @@
+import { ethers } from 'hardhat';
+
 // const helloHedera = require('./../bytecodes/randomGameDescriptor.json');
 const helloHedera = require('./../bytecodes/randomGame.json');
 
@@ -85,7 +87,7 @@ async function main() {
 			new ContractFunctionParameters()
 				.addAddress('0000000000000000000000000000000002EB0672')
 				.addUint256(100)
-				.addUint256(100)
+				.addUint256(ethers.utils.parseEther('10'))
 		)
 
 		//.setConstructorParameters(new ContractFunctionParameters().addAddress(0.0.48569745))

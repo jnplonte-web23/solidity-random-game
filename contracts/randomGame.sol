@@ -185,14 +185,14 @@ contract RandomGame is HederaTokenService, Ownable {
 		address[3] memory referals;
 		(winners, referals) = randomGameDescriptor.setWinner(playerCount, _winnerCount);
 
-		transferHbar(payable(address(winners[0])), 10);
+		transferHbar(payable(address(winners[0])), price);
 
 		if (_winnerCount >= 2) {
-			transferHbar(payable(address(winners[1])), 10);
+			transferHbar(payable(address(winners[1])), price);
 		}
 
 		if (_winnerCount >= 3) {
-			transferHbar(payable(address(winners[2])), 10);
+			transferHbar(payable(address(winners[2])), price);
 		}
 
 		winner1List.push(address(winners[0]));
@@ -205,13 +205,28 @@ contract RandomGame is HederaTokenService, Ownable {
 	 * @notice get winner list
 	 * @param _count winner count list
 	 */
-	function getWinnerList(uint8 _count) external view returns (address[] memory) {
+	function getWinnerList(uint8 _count) external view returns (address) {
 		if (_count == 1) {
-			return winner1List;
+			if (winner1List.length >= 1) {
+				uint last1Index = winner1List.length - 1;
+				return winner1List[last1Index];
+			} else {
+				return address(0);
+			}
 		} else if (_count == 2) {
-			return winner2List;
+			if (winner2List.length >= 1) {
+				uint last2Index = winner2List.length - 1;
+				return winner2List[last2Index];
+			} else {
+				return address(0);
+			}
 		} else {
-			return winner3List;
+			if (winner3List.length >= 1) {
+				uint last3Index = winner3List.length - 1;
+				return winner3List[last3Index];
+			} else {
+				return address(0);
+			}
 		}
 	}
 }

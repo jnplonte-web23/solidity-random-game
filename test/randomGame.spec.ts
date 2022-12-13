@@ -56,13 +56,13 @@ describe.only('RandomGame TEST', async () => {
 
 	it('should get winner list', async () => {
 		const testData1 = await randomGame.getWinnerList(1);
-		expect(testData1.length).to.equal(0);
+		expect(testData1).to.equal('0x0000000000000000000000000000000000000000');
 
 		const testData2 = await randomGame.getWinnerList(2);
-		expect(testData2.length).to.equal(0);
+		expect(testData2).to.equal('0x0000000000000000000000000000000000000000');
 
 		const testData3 = await randomGame.getWinnerList(3);
-		expect(testData3.length).to.equal(0);
+		expect(testData3).to.equal('0x0000000000000000000000000000000000000000');
 	});
 
 	it('should get player data', async () => {
@@ -162,18 +162,18 @@ describe.only('RandomGame TEST', async () => {
 		expect(testData1).to.equal(false);
 
 		const testData2 = await randomGame.getWinnerList(1);
-		expect(testData2.length).to.equal(1);
+		expect(testData2).to.be.a('string');
 	});
 
 	it('should get the winner list', async () => {
 		const testData1 = await randomGame.getWinnerList(1);
-		expect(testData1.length).to.equal(1);
+		expect(testData1).to.be.a('string');
 
 		const testData2 = await randomGame.getWinnerList(2);
-		expect(testData2[0]).to.equal(referalAddress2);
+		expect(testData2).to.equal(referalAddress2);
 
 		const testData3 = await randomGame.getWinnerList(3);
-		expect(testData3[0]).to.equal(referalAddress2);
+		expect(testData3).to.equal(referalAddress2);
 	});
 
 	it('should start another real game', async () => {
